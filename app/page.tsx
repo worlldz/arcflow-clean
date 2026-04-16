@@ -830,7 +830,7 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
+                <div data-ui="subpanel" className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
                   <Label
                     title="Optional Sender Announcement"
                     helper={
@@ -885,7 +885,7 @@ export default function Page() {
               subtitle="Connect the correct X account. If the username matches the reserved handle, verification unlocks claim."
             >
               <div className="grid gap-4">
-                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
+                <div data-ui="subpanel" className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
                   <Label title="X Connection" />
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-slate-300">
@@ -912,7 +912,7 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
+                <div data-ui="subpanel" className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
                   <Label title="Claim Identity" />
                   <p className="font-mono text-xs leading-6 text-[#c8fff1]">
                     {xUsername
@@ -921,7 +921,7 @@ export default function Page() {
                   </p>
                 </div>
 
-                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
+                <div data-ui="subpanel" className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
                   <Label title="Claimable Rewards" />
                   {claimLoading ? (
                     <p className="text-sm leading-6 text-slate-400">Loading claimable rewards...</p>
@@ -1018,14 +1018,14 @@ export default function Page() {
 
           <div className="space-y-8">
             <Panel title="The ArcFlow Protocol">
-              <div className="grid gap-3">
+              <div className="mt-4 grid gap-4">
                 <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
                 <Stat label="2. Lock the Reward" value="Securely escrow USDC or EURC to their social handle." />
                 <Stat label="3. Simple Verification" value="The recipient validates their handle with a single @arc proof." />
                 <Stat label="4. Automated Payout" value="Smart contracts verify the proof and release the funds instantly." />
               </div>
-              <div className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
-                <p className="text-sm leading-7 text-slate-300">
+              <div className="mt-6 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                <p className="text-sm leading-8 text-slate-300">
                   ArcFlow turns social appreciation into a cleaner product flow: find a creator, lock the reward,
                   verify identity, and release stablecoins without forcing users through a clunky process.
                 </p>
@@ -1033,7 +1033,7 @@ export default function Page() {
             </Panel>
 
             <Panel title="Explore Arc">
-              <div className="grid gap-3">
+              <div className="mt-4 grid gap-3">
                 <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
                   Arc Network | Build, Learn, Ecosystem, Start Building
                 </Link>
@@ -1050,7 +1050,7 @@ export default function Page() {
             </Panel>
             <section
               data-ui="panel"
-              className="flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
+              className="mt-2 flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
             >
               <div className="w-full max-w-[420px]">
                 <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">

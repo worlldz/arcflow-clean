@@ -94,6 +94,12 @@ html[data-theme="light"] [data-ui="hero"] {
   box-shadow: 0 24px 80px rgba(128, 145, 175, 0.16) !important;
 }
 
+html[data-theme="light"] [data-ui="subpanel"] {
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 246, 255, 0.98)) !important;
+  box-shadow: 0 18px 48px rgba(128, 145, 175, 0.12) !important;
+}
+
 html[data-theme="light"] h1,
 html[data-theme="light"] h2,
 html[data-theme="light"] p,
