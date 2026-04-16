@@ -139,15 +139,12 @@ export function makeClaimCelebrationTweetText(input?: {
   amount?: string;
   tokenSymbol?: string;
 }) {
-  const cleanHandle = input?.handle?.replace(/^@/, "");
   const amountText =
     input?.amount && input?.tokenSymbol
-      ? `${input.amount} ${input.tokenSymbol} claimed`
-      : "Reward claimed";
+      ? `I just claimed ${input.amount} ${input.tokenSymbol}`
+      : "I just claimed my reward";
 
-  return cleanHandle
-    ? `@arc ${amountText} from @${cleanHandle}. Thank you so much ^^ Build on Arc.`
-    : `@arc ${amountText}. Thank you so much ^^ Build on Arc.`;
+  return `@arc ${amountText} through @arcflowc ^^ #BuildOnArc`;
 }
 
 export function makeClaimCelebrationIntentUrl(input?: {
