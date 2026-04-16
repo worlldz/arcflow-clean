@@ -86,6 +86,8 @@ function NavButton({
 }) {
   return (
     <button
+      data-ui="nav-button"
+      data-active={active ? "true" : "false"}
       onClick={onClick}
       className={`rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] transition ${
         active
@@ -108,7 +110,10 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-5 shadow-[0_36px_100px_rgba(0,0,0,0.48)] sm:p-6">
+    <section
+      data-ui="panel"
+      className="rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-5 shadow-[0_36px_100px_rgba(0,0,0,0.48)] sm:p-6"
+    >
       <div className="mb-5">
         <h2 className="text-2xl font-medium text-white">{title}</h2>
         {subtitle ? (
@@ -141,6 +146,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
+      data-ui="input"
       className="h-14 w-full rounded-2xl border border-white/8 bg-[#0a1018] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#92ffe7] focus:bg-[#0d1520]"
     />
   );
@@ -150,6 +156,7 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
+      data-ui="input"
       className="h-14 w-full rounded-2xl border border-white/8 bg-[#0a1018] px-4 text-sm text-white outline-none transition focus:border-[#92ffe7] focus:bg-[#0d1520]"
     />
   );
@@ -162,6 +169,7 @@ function PrimaryButton({
   return (
     <button
       {...props}
+      data-ui="primary-button"
       className="h-12 rounded-2xl bg-[linear-gradient(135deg,#b7fff1_0%,#84ffe2_40%,#3ae0b6_100%)] px-4 text-sm font-semibold text-[#04120e] shadow-[0_18px_40px_rgba(61,239,193,0.3)] transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:scale-100"
     >
       {children}
@@ -176,6 +184,7 @@ function SecondaryButton({
   return (
     <button
       {...props}
+      data-ui="secondary-button"
       className="h-12 rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-45"
     >
       {children}
@@ -191,7 +200,7 @@ function Stat({
   value: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-white/6 bg-white/[0.025] px-4 py-4">
+    <div data-ui="stat" className="rounded-2xl border border-white/6 bg-white/[0.025] px-4 py-4">
       <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{label}</p>
       <p className="mt-2 text-sm font-medium text-white">{value}</p>
     </div>
@@ -200,7 +209,7 @@ function Stat({
 
 function Status({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-[#92ffe7]/15 bg-[#92ffe7]/8 px-4 py-3 text-sm text-[#e0fff7]">
+    <div data-ui="status" className="rounded-2xl border border-[#92ffe7]/15 bg-[#92ffe7]/8 px-4 py-3 text-sm text-[#e0fff7]">
       {text}
     </div>
   );
@@ -235,6 +244,25 @@ function WalletButton() {
         : injectedConnector
           ? "Connect Wallet"
           : "Wallet Not Detected"}
+    </button>
+  );
+}
+
+function ThemeToggle({
+  theme,
+  onToggle,
+}: {
+  theme: "dark" | "light";
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      data-ui="theme-toggle"
+      onClick={onToggle}
+      aria-label={theme === "dark" ? "Enable light mode" : "Enable dark mode"}
+      className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-xl text-white shadow-[0_12px_36px_rgba(0,0,0,0.22)] transition hover:bg-white/[0.06]"
+    >
+      {theme === "dark" ? "\u2600" : "\u263d"}
     </button>
   );
 }
@@ -584,7 +612,10 @@ export default function Page() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-10">
-      <section className="relative mb-6 overflow-hidden rounded-[36px] border border-white/8 bg-[linear-gradient(180deg,rgba(9,12,20,0.98),rgba(4,6,10,0.98))] p-5 shadow-[0_48px_120px_rgba(0,0,0,0.58)] sm:p-7">
+      <section
+        data-ui="hero"
+        className="relative mb-8 overflow-hidden rounded-[36px] border border-white/8 bg-[linear-gradient(180deg,rgba(9,12,20,0.98),rgba(4,6,10,0.98))] p-5 shadow-[0_48px_120px_rgba(0,0,0,0.58)] sm:p-7"
+      >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_12%,rgba(124,255,226,0.2),transparent_24%),radial-gradient(circle_at_88%_16%,rgba(120,101,255,0.18),transparent_26%),radial-gradient(circle_at_50%_100%,rgba(18,98,118,0.26),transparent_34%)]" />
 
         <div className="relative">
@@ -600,13 +631,21 @@ export default function Page() {
                 <br />
                 Release on Arc.
               </h1>
-              <p className="mt-5 max-w-[640px] text-sm leading-6 text-slate-400 sm:text-base">
-                Social rewards on Arc with a public @arc proof flow. Direct payments stay simple, clean, and onchain.
-              </p>
+                <p className="mt-5 max-w-[640px] text-sm leading-6 text-slate-400 sm:text-base">
+                  Social rewards on Arc with stablecoin-native flows, cleaner identity checks, and faster creator payouts.
+                </p>
             </div>
 
             <div className="flex flex-col gap-3 xl:w-[360px] xl:items-end">
-              <WalletButton />
+              <div className="flex w-full gap-3">
+                <ThemeToggle
+                  theme={theme}
+                  onToggle={() => setTheme(theme === "dark" ? "light" : "dark")}
+                />
+                <div className="flex-1">
+                  <WalletButton />
+                </div>
+              </div>
               <button
                 onClick={() => void switchChainAsync({ chainId: arcTestnet.id })}
                 className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-white transition hover:bg-white/[0.06]"
@@ -631,7 +670,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-7 flex flex-wrap gap-2">
             <NavButton active={tab === "rewards"} onClick={() => setTab("rewards")}>
               Rewards
             </NavButton>
@@ -645,19 +684,13 @@ export default function Page() {
             >
               Faucet
             </Link>
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </button>
           </div>
         </div>
       </section>
 
       {tab === "rewards" ? (
-        <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr]">
-          <div className="space-y-6">
+        <section className="grid gap-10 xl:grid-cols-[1.04fr_0.96fr]">
+          <div className="space-y-8">
             <Panel
               title="Create Reward"
               subtitle="Lock USDC or EURC to an X handle. Add your own message and let ArcFlow handle the proof flow."
@@ -869,7 +902,7 @@ export default function Page() {
             </Panel>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <Panel title="The ArcFlow Protocol">
               <div className="grid gap-3">
                 <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
@@ -877,28 +910,34 @@ export default function Page() {
                 <Stat label="3. Simple Verification" value="The recipient validates their handle with a single @arc proof." />
                 <Stat label="4. Automated Payout" value="Smart contracts verify the proof and release the funds instantly." />
               </div>
+              <div className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                <p className="text-sm leading-7 text-slate-300">
+                  ArcFlow turns social appreciation into a cleaner product flow: find a creator, lock the reward,
+                  verify identity, and release stablecoins without forcing users through a clunky process.
+                </p>
+              </div>
             </Panel>
 
             <Panel title="Quick Links">
               <div className="grid gap-3">
                 <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Network
+                  Arc Network | Build, Learn, Ecosystem, Start Building
                 </Link>
                 <Link href="https://testnet.arcscan.app/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Testnet Explorer
+                  Arc Testnet Explorer | Blockchain, Contracts, Charts, API
                 </Link>
                 <Link href="https://community.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Community
+                  Arc Community | Events, Contents, Contributions, Badges
                 </Link>
                 <Link href="https://docs.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Docs
+                  Arc Docs | Documentation, Integrate, Everything you need
                 </Link>
               </div>
             </Panel>
 
             <Panel
               title="Why Arc"
-              subtitle="Arc keeps social reward flows simple: low-fee stablecoins, fast settlement, and a clean path from identity to payout."
+              subtitle="Arc gives ArcFlow the right foundation: stablecoin-native UX, fast settlement, and a builder culture that makes shipping feel exciting instead of painful."
             >
               <div className="grid gap-3">
                 <Stat
@@ -910,23 +949,47 @@ export default function Page() {
                   value="Arc is built for quick confirmations, so creators do not wait around to see funds arrive."
                 />
                 <Stat
-                  label="Composable Identity"
-                  value="ArcFlow ties social identity to onchain reward rails without cluttering the product with extra steps."
+                  label="Developer Love"
+                  value="Arc treats builders seriously. The team cares about developers, the community is warm, and people building on Arc tend to actually enjoy shipping."
+                />
+                <Stat
+                  label="Why We Chose It"
+                  value="We wanted a chain where social identity, stablecoin movement, and low-friction UX can live in one product without compromise."
                 />
               </div>
-              <div className="mt-5 rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-5">
-                <p className="text-[10px] uppercase tracking-[0.42em] text-slate-500">
-                  Powered by
-                </p>
-                <p className="mt-3 text-5xl font-medium tracking-[0.24em] text-white">
-                  ARC
-                </p>
+              <div className="mt-5 grid gap-4 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Core Advantages</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">
+                      Arc gives us the pieces we actually care about: smooth stablecoin transfers, quick confirmations,
+                      and infrastructure that fits consumer-facing products instead of slowing them down.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Builder Experience</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">
+                      We chose Arc because it feels builder-first. The team clearly values developers, the ecosystem is
+                      welcoming, and people shipping on Arc tend to stay energized instead of getting worn down.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 flex min-h-[260px] items-center justify-center rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-5 text-center">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.92em] text-slate-500">
+                    Powered By
+                  </p>
+                  <p className="mt-6 text-5xl font-medium tracking-[1.4em] text-white sm:text-6xl">
+                    ARC
+                  </p>
+                </div>
               </div>
             </Panel>
           </div>
         </section>
       ) : (
-        <section className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
+        <section className="grid gap-8 xl:grid-cols-[1.02fr_0.98fr]">
           <Panel
             title="Send Payment"
             subtitle="Directly send USDC or EURC to a wallet address. Address must be valid and start with 0x."
@@ -985,3 +1048,4 @@ export default function Page() {
     </main>
   );
 }
+
