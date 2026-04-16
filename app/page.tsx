@@ -516,10 +516,10 @@ export default function Page() {
       }
       if (!parsedTipAmount) throw new Error("Enter a valid amount.");
       if (!tipApproved) throw new Error(`Approve ${tipToken} first.`);
-      if (!tipPostUrl.trim()) throw new Error("Paste a tweet URL.");
 
       const handle = normalizeHandle(tipRecipientHandle);
       if (!handle) throw new Error("Enter the X handle.");
+      const normalizedPostUrl = tipPostUrl.trim() || `https://x.com/${handle}`;
 
       setTipStatus("Creating reward...");
       await ensureArc();
@@ -540,7 +540,7 @@ export default function Page() {
         abi: arcFlowTipsAbi,
         functionName: "createTip",
         args: [
-          tipPostUrl.trim(),
+          normalizedPostUrl,
           handle,
           selectedTipToken.address,
           parsedTipAmount,
@@ -781,9 +781,9 @@ export default function Page() {
             >
               <div className="grid gap-4">
                 <div>
-                  <Label title="Tweet URL" />
+                  <Label title="Tweet URL" helper={<span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Optional</span>} />
                   <Input
-                    placeholder="https://x.com/user/status/123..."
+                    placeholder="https://x.com/user/status/123... or leave empty"
                     value={tipPostUrl}
                     onChange={(event) => setTipPostUrl(event.target.value)}
                   />
@@ -1033,7 +1033,7 @@ export default function Page() {
             </Panel>
 
             <Panel title="Explore Arc">
-              <div className="mt-4 grid gap-3">
+              <div className="mt-8 grid gap-3">
                 <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
                   Arc Network | Build, Learn, Ecosystem, Start Building
                 </Link>
