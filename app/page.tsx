@@ -73,6 +73,33 @@ function getReadableError(error: unknown, fallback: string) {
 function parseTipReadResult(data: unknown) {
   if (!data) return null;
 
+  if (Array.isArray(data) && data.length >= 9) {
+    const recipientHandle = data[4];
+    const amount = data[2];
+    const token = data[1];
+    const claimDeadline = data[6];
+    const claimed = data[7];
+    const refunded = data[8];
+
+    if (
+      typeof recipientHandle === "string" &&
+      typeof amount === "bigint" &&
+      typeof token === "string" &&
+      typeof claimDeadline === "bigint" &&
+      typeof claimed === "boolean" &&
+      typeof refunded === "boolean"
+    ) {
+      return {
+        recipientHandle,
+        amount,
+        token: token as Address,
+        claimDeadline,
+        claimed,
+        refunded,
+      };
+    }
+  }
+
   const record = data as {
     recipientHandle?: string;
     amount?: bigint;
@@ -843,7 +870,7 @@ export default function Page() {
             <Panel
               title="Create Reward"
               subtitle="Lock USDC or EURC to an X handle. Add your own message and let ArcFlow handle the proof flow."
-              className="xl:min-h-[760px]"
+              className="h-full xl:min-h-[760px]"
             >
               <div className="grid gap-4">
                 <div>
@@ -1085,7 +1112,7 @@ export default function Page() {
           </div>
 
           <div className="space-y-8">
-            <Panel title="The ArcFlow Protocol" className="xl:min-h-[760px]">
+            <Panel title="The ArcFlow Protocol" className="h-full xl:min-h-[760px]">
               <div className="mt-4 flex h-full flex-col justify-between gap-5">
                 <div className="grid gap-4">
                 <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />

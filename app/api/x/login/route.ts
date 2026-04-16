@@ -33,7 +33,7 @@ export async function GET() {
   });
 
   const response = NextResponse.redirect(
-    `https://twitter.com/i/oauth2/authorize?${params.toString()}`,
+    `https://x.com/i/oauth2/authorize?${params.toString()}`,
   );
 
   response.cookies.set(X_AUTH_STATE_COOKIE, state, {
