@@ -696,7 +696,7 @@ export default function Page() {
       setClaimStatus("Claiming reward...");
       await ensureArc();
       const tweetWindow = openTweetAfterClaim
-        ? window.open("", "_blank", "noopener,noreferrer")
+        ? window.open("about:blank", "_blank")
         : null;
 
       const hash = await (writeContractAsync as any)({
@@ -732,9 +732,10 @@ export default function Page() {
       setClaimStatus("Claim completed.");
       if (celebrationUrl) {
         if (tweetWindow) {
-          tweetWindow.location.href = celebrationUrl;
+          tweetWindow.location.replace(celebrationUrl);
+          tweetWindow.focus();
         } else {
-          window.open(celebrationUrl, "_blank", "noopener,noreferrer");
+          window.open(celebrationUrl, "_blank");
         }
       }
     } catch (error) {
