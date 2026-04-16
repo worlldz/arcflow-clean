@@ -111,15 +111,17 @@ function Panel({
   title,
   subtitle,
   children,
+  className = "",
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <section
       data-ui="panel"
-      className="rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-5 shadow-[0_36px_100px_rgba(0,0,0,0.48)] sm:p-6"
+      className={`rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-5 shadow-[0_36px_100px_rgba(0,0,0,0.48)] sm:p-6 ${className}`}
     >
       <div className="mb-5">
         <h2 className="text-2xl font-medium text-white">{title}</h2>
@@ -778,6 +780,7 @@ export default function Page() {
             <Panel
               title="Create Reward"
               subtitle="Lock USDC or EURC to an X handle. Add your own message and let ArcFlow handle the proof flow."
+              className="xl:min-h-[760px]"
             >
               <div className="grid gap-4">
                 <div>
@@ -1017,18 +1020,19 @@ export default function Page() {
           </div>
 
           <div className="space-y-8">
-            <Panel title="The ArcFlow Protocol">
-              <div className="mt-4 grid gap-4">
+            <Panel title="The ArcFlow Protocol" className="xl:min-h-[760px]">
+              <div className="mt-4 flex h-full flex-col justify-between gap-5">
+                <div className="grid gap-4">
                 <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
                 <Stat label="2. Lock the Reward" value="Securely escrow USDC or EURC to their social handle." />
-                <Stat label="3. Simple Verification" value="The recipient validates their handle with a single @arc proof." />
-                <Stat label="4. Automated Payout" value="Smart contracts verify the proof and release the funds instantly." />
-              </div>
-              <div className="mt-6 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
-                <p className="text-sm leading-8 text-slate-300">
-                  ArcFlow turns social appreciation into a cleaner product flow: find a creator, lock the reward,
-                  verify identity, and release stablecoins without forcing users through a clunky process.
-                </p>
+                <Stat label="3. Account Match" value="The recipient connects X, ArcFlow detects active rewards reserved for that handle, and verification becomes one click." />
+                <Stat label="4. Automated Payout" value="Once the connected X account matches, smart contracts release funds instantly on Arc with no manual admin step." />
+                </div>
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-sm leading-8 text-slate-300">
+                    ArcFlow turns social appreciation into a cleaner product flow: creators can be discovered on X, rewarded in stablecoins, verified through connected identity, and paid out on Arc without clunky off-chain coordination.
+                  </p>
+                </div>
               </div>
             </Panel>
 
