@@ -498,7 +498,11 @@ export default function Page() {
 
       const verifyJson = await verifyResponse.json();
       if (!verifyResponse.ok) {
-        throw new Error(verifyJson.error || "Verification failed.");
+        throw new Error(
+          verifyJson.detail
+            ? `${verifyJson.error || "Verification failed."} ${verifyJson.detail}`
+            : verifyJson.error || "Verification failed.",
+        );
       }
 
       setVerifiedSignature(verifyJson.signature);
