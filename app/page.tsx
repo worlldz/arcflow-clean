@@ -15,7 +15,6 @@ import {
   useConnect,
   useDisconnect,
   usePublicClient,
-  useReadContract,
   useSwitchChain,
   useWriteContract,
 } from "wagmi";
@@ -23,13 +22,21 @@ import {
   arcFlowTipsAbi,
   erc20Abi,
   makeClaimCelebrationIntentUrl,
-  makeClaimProof,
   makeRewardAnnouncementIntentUrl,
   makeRewardAnnouncementText,
 } from "../lib/contracts";
 import { arcTestnet, CONTRACTS, TOKENS } from "../lib/wagmi";
 
 type TokenSymbol = keyof typeof TOKENS;
+type ClaimableTip = {
+  tipId: bigint;
+  recipientHandle: string;
+  amount: bigint;
+  token: Address;
+  claimDeadline: bigint;
+  refunded: boolean;
+  claimed: boolean;
+};
 
 function normalizeHandle(handle: string) {
   return handle.trim().replace(/^@/, "").toLowerCase();
@@ -192,6 +199,20 @@ function SecondaryButton({
   );
 }
 
+function TweetButton({
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      {...props}
+      className="h-12 rounded-2xl border border-[#4cb7ff]/35 bg-[linear-gradient(135deg,#43b3ff_0%,#1d9bf0_60%,#1176d4_100%)] px-4 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(29,155,240,0.28)] transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:scale-100"
+    >
+      {children}
+    </button>
+  );
+}
+
 function Stat({
   label,
   value,
@@ -289,11 +310,13 @@ export default function Page() {
   const [tipApproved, setTipApproved] = useState(false);
   const [createdTipId, setCreatedTipId] = useState<bigint | null>(null);
 
-  const [claimTipId, setClaimTipId] = useState("");
   const [claimStatus, setClaimStatus] = useState("");
   const [verifiedSignature, setVerifiedSignature] = useState<`0x${string}` | null>(null);
   const [verifiedSigDeadline, setVerifiedSigDeadline] = useState<bigint | null>(null);
   const [verifiedTipId, setVerifiedTipId] = useState<bigint | null>(null);
+  const [claimableTips, setClaimableTips] = useState<ClaimableTip[]>([]);
+  const [claimLoading, setClaimLoading] = useState(false);
+  const [selectedClaimTipId, setSelectedClaimTipId] = useState<bigint | null>(null);
   const [xUsername, setXUsername] = useState<string | null>(null);
   const [xLoading, setXLoading] = useState(true);
 
@@ -315,14 +338,6 @@ export default function Page() {
     [paymentAmount, selectedPaymentToken.decimals],
   );
 
-  const numericClaimTipId = useMemo(() => {
-    try {
-      return claimTipId ? BigInt(claimTipId) : 0n;
-    } catch {
-      return 0n;
-    }
-  }, [claimTipId]);
-
   const announcementTweetText =
     tipRecipientHandle && createdTipId !== null
       ? makeRewardAnnouncementText({
@@ -341,19 +356,9 @@ export default function Page() {
         })
       : "#";
 
-  const { data: claimTipData, refetch: refetchClaimTipData } = useReadContract({
-    address: tipsAddress,
-    abi: arcFlowTipsAbi,
-    functionName: "getTip",
-    args: [numericClaimTipId],
-    query: {
-      enabled: hasTipsContract && numericClaimTipId > 0n,
-    },
-  });
-
-  const parsedClaimTipData = useMemo(
-    () => parseTipReadResult(claimTipData),
-    [claimTipData],
+  const selectedClaimTip = useMemo(
+    () => claimableTips.find((tip) => tip.tipId === selectedClaimTipId) ?? null,
+    [claimableTips, selectedClaimTipId],
   );
 
   useEffect(() => {
@@ -391,6 +396,10 @@ export default function Page() {
   }, [theme]);
 
   useEffect(() => {
+    void loadClaimableTips(xUsername);
+  }, [xUsername, hasTipsContract, publicClient]);
+
+  useEffect(() => {
     setTipApproved(false);
   }, [tipAmount, tipToken, address]);
 
@@ -398,7 +407,7 @@ export default function Page() {
     setVerifiedSignature(null);
     setVerifiedSigDeadline(null);
     setVerifiedTipId(null);
-  }, [claimTipId, address, xUsername]);
+  }, [selectedClaimTipId, address, xUsername]);
 
   async function ensureArc() {
     if (chainId !== arcTestnet.id) {
@@ -409,6 +418,70 @@ export default function Page() {
   async function disconnectX() {
     await fetch("/api/x/logout", { method: "POST" });
     setXUsername(null);
+  }
+
+  async function loadClaimableTips(currentUsername?: string | null) {
+    const username = normalizeHandle(currentUsername ?? xUsername ?? "");
+    if (!username || !hasTipsContract || !publicClient) {
+      setClaimableTips([]);
+      setSelectedClaimTipId(null);
+      return;
+    }
+
+    setClaimLoading(true);
+
+    try {
+      const nextTipId = (await (publicClient.readContract as any)({
+        address: tipsAddress,
+        abi: arcFlowTipsAbi,
+        functionName: "nextTipId",
+        args: [],
+      })) as bigint;
+
+      const total = Number(nextTipId > 1n ? nextTipId - 1n : 0n);
+      if (!total) {
+        setClaimableTips([]);
+        setSelectedClaimTipId(null);
+        return;
+      }
+
+      const ids = Array.from({ length: total }, (_, index) => BigInt(index + 1));
+      const now = BigInt(Math.floor(Date.now() / 1000));
+
+      const tips = (
+        await Promise.all(
+          ids.map(async (tipId) => {
+            try {
+              const rawTip = await (publicClient.readContract as any)({
+                address: tipsAddress,
+                abi: arcFlowTipsAbi,
+                functionName: "getTip",
+                args: [tipId],
+              });
+              const parsed = parseTipReadResult(rawTip);
+              return parsed ? ({ ...parsed, tipId } as ClaimableTip) : null;
+            } catch {
+              return null;
+            }
+          }),
+        )
+      )
+        .filter((tip): tip is ClaimableTip => Boolean(tip))
+        .filter(
+          (tip) =>
+            normalizeHandle(tip.recipientHandle) === username &&
+            !tip.claimed &&
+            !tip.refunded &&
+            tip.claimDeadline > now,
+        );
+
+      setClaimableTips(tips);
+      setSelectedClaimTipId((current) =>
+        tips.find((tip) => tip.tipId === current)?.tipId ?? tips[0]?.tipId ?? null,
+      );
+    } finally {
+      setClaimLoading(false);
+    }
   }
 
   async function approveTipToken() {
@@ -480,7 +553,6 @@ export default function Page() {
 
       if (createdTipId !== null) {
         setCreatedTipId(createdTipId);
-        setClaimTipId(createdTipId.toString());
         setTipApproved(false);
         setTipStatus(`Reward created. Tip ID: ${createdTipId.toString()}`);
         const tweetUrl = makeRewardAnnouncementIntentUrl({
@@ -503,7 +575,9 @@ export default function Page() {
       if (!CONTRACTS.tips) {
         throw new Error("NEXT_PUBLIC_TIPS_CONTRACT is still empty in .env.local.");
       }
-      if (!claimTipId) throw new Error("Enter a tip ID.");
+      if (!selectedClaimTipId) {
+        throw new Error("No claimable rewards found for this connected X account.");
+      }
 
       setClaimStatus("Verifying connected X account...");
       await ensureArc();
@@ -512,7 +586,7 @@ export default function Page() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tipId: claimTipId,
+          tipId: selectedClaimTipId.toString(),
           recipient: address,
         }),
       });
@@ -528,7 +602,7 @@ export default function Page() {
 
       setVerifiedSignature(verifyJson.signature);
       setVerifiedSigDeadline(BigInt(verifyJson.sigDeadline));
-      setVerifiedTipId(BigInt(claimTipId));
+      setVerifiedTipId(selectedClaimTipId);
       setClaimStatus("Verified. Claim is ready.");
     } catch (error) {
       setClaimStatus(error instanceof Error ? error.message : "Verification failed.");
@@ -547,6 +621,9 @@ export default function Page() {
 
       setClaimStatus("Claiming reward...");
       await ensureArc();
+      const tweetWindow = openTweetAfterClaim
+        ? window.open("", "_blank", "noopener,noreferrer")
+        : null;
 
       const hash = await (writeContractAsync as any)({
         address: tipsAddress,
@@ -561,16 +638,20 @@ export default function Page() {
       });
 
       await publicClient?.waitForTransactionReceipt({ hash });
-      await refetchClaimTipData();
       const celebrationUrl = openTweetAfterClaim
-        ? makeClaimCelebrationIntentUrl(parsedClaimTipData?.recipientHandle)
+        ? makeClaimCelebrationIntentUrl(selectedClaimTip?.recipientHandle)
         : null;
       setVerifiedSignature(null);
       setVerifiedSigDeadline(null);
       setVerifiedTipId(null);
+      await loadClaimableTips(xUsername);
       setClaimStatus("Claim completed.");
       if (celebrationUrl) {
-        window.location.assign(celebrationUrl);
+        if (tweetWindow) {
+          tweetWindow.location.href = celebrationUrl;
+        } else {
+          window.open(celebrationUrl, "_blank", "noopener,noreferrer");
+        }
       }
     } catch (error) {
       setClaimStatus(error instanceof Error ? error.message : "Claim failed.");
@@ -831,46 +912,76 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label title="Tip ID" />
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="1"
-                      value={claimTipId}
-                      onChange={(event) => setClaimTipId(event.target.value)}
-                    />
-                  </div>
-                  <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
-                    <Label title="Claim Identity" />
-                    <p className="font-mono text-xs leading-6 text-[#c8fff1]">
-                      {xUsername
-                        ? `@${xUsername} will be matched against the reserved handle on this reward.`
-                        : "Connect X to verify the reserved handle."}
-                    </p>
-                  </div>
+                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
+                  <Label title="Claim Identity" />
+                  <p className="font-mono text-xs leading-6 text-[#c8fff1]">
+                    {xUsername
+                      ? `@${xUsername} is connected. ArcFlow will scan for active rewards assigned to this handle.`
+                      : "Connect X to load claimable rewards reserved for your handle."}
+                  </p>
                 </div>
 
-                {parsedClaimTipData ? (
+                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
+                  <Label title="Claimable Rewards" />
+                  {claimLoading ? (
+                    <p className="text-sm leading-6 text-slate-400">Loading claimable rewards...</p>
+                  ) : claimableTips.length ? (
+                    <div className="grid gap-3">
+                      {claimableTips.map((tip) => (
+                        <button
+                          key={tip.tipId.toString()}
+                          type="button"
+                          onClick={() => setSelectedClaimTipId(tip.tipId)}
+                          className={`rounded-2xl border px-4 py-4 text-left transition ${
+                            selectedClaimTipId === tip.tipId
+                              ? "border-[#92ffe7]/50 bg-[#92ffe7]/10"
+                              : "border-white/8 bg-white/[0.03] hover:bg-white/[0.06]"
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
+                                Reward #{tip.tipId.toString()}
+                              </p>
+                              <p className="mt-2 text-sm font-medium text-white">
+                                {formatUnits(tip.amount, 6)}{" "}
+                                {tip.token === TOKENS.USDC.address ? "USDC" : "EURC"} reserved for @{tip.recipientHandle}
+                              </p>
+                            </div>
+                            <p className="text-xs text-slate-400">
+                              Ends {formatTimestamp(tip.claimDeadline)}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm leading-6 text-slate-400">
+                      No active rewards were found for this connected X account yet.
+                    </p>
+                  )}
+                </div>
+
+                {selectedClaimTip ? (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <Stat label="Handle" value={`@${parsedClaimTipData.recipientHandle}`} />
+                    <Stat label="Reward ID" value={selectedClaimTip.tipId.toString()} />
+                    <Stat label="Handle" value={`@${selectedClaimTip.recipientHandle}`} />
                     <Stat
                       label="Amount"
-                      value={`${formatUnits(parsedClaimTipData.amount, 6)} ${
-                        parsedClaimTipData.token === TOKENS.USDC.address ? "USDC" : "EURC"
+                      value={`${formatUnits(selectedClaimTip.amount, 6)} ${
+                        selectedClaimTip.token === TOKENS.USDC.address ? "USDC" : "EURC"
                       }`}
                     />
                     <Stat
                       label="Deadline"
-                      value={formatTimestamp(parsedClaimTipData.claimDeadline)}
+                      value={formatTimestamp(selectedClaimTip.claimDeadline)}
                     />
                     <Stat
                       label="State"
                       value={
-                        parsedClaimTipData.refunded
+                        selectedClaimTip.refunded
                           ? "Refunded"
-                          : parsedClaimTipData.claimed
+                          : selectedClaimTip.claimed
                             ? "Claimed"
                             : "Active"
                       }
@@ -893,12 +1004,12 @@ export default function Page() {
                   </PrimaryButton>
                 </div>
 
-                <SecondaryButton
+                <TweetButton
                   onClick={() => void claimVerifiedTip(true)}
                   disabled={!isConnected || !xUsername || !verifiedSignature}
                 >
                   Claim & Tweet
-                </SecondaryButton>
+                </TweetButton>
 
                 {claimStatus ? <Status text={claimStatus} /> : null}
               </div>
@@ -921,7 +1032,7 @@ export default function Page() {
               </div>
             </Panel>
 
-            <Panel title="Quick Links">
+            <Panel title="Explore Arc">
               <div className="grid gap-3">
                 <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
                   Arc Network | Build, Learn, Ecosystem, Start Building
@@ -939,13 +1050,13 @@ export default function Page() {
             </Panel>
             <section
               data-ui="panel"
-              className="flex min-h-[280px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
+              className="flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
             >
               <div className="w-full max-w-[420px]">
                 <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
                   Powered By
                 </p>
-                <p className="mt-8 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                <p className="mt-8 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
                   ARC
                 </p>
               </div>
@@ -1088,32 +1199,19 @@ export default function Page() {
               </div>
             </Panel>
 
-            <Panel title="Explore Arc">
-              <div className="grid gap-3">
-                <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Network | Build, Learn, Ecosystem, Start Building
-                </Link>
-                <Link href="https://testnet.arcscan.app/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Testnet Explorer | Blockchain, Contracts, Charts, API
-                </Link>
-                <Link href="https://community.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Community | Events, Contents, Contributions, Badges
-                </Link>
-                <Link href="https://docs.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                  Arc Docs | Documentation, Integrate, Everything you need
-                </Link>
+            <section
+              data-ui="panel"
+              className="flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
+            >
+              <div className="w-full max-w-[420px]">
+                <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
+                  Powered By
+                </p>
+                <p className="mt-8 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                  ARC
+                </p>
               </div>
-              <div className="mt-5 flex min-h-[280px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]">
-                <div className="w-full max-w-[420px]">
-                  <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
-                    Powered By
-                  </p>
-                  <p className="mt-8 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
-                    ARC
-                  </p>
-                </div>
-              </div>
-            </Panel>
+            </section>
           </div>
         </section>
       )}
