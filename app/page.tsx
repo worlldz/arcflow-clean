@@ -250,6 +250,7 @@ export default function Page() {
   const hasTipsContract = Boolean(CONTRACTS.tips);
 
   const [tab, setTab] = useState<"rewards" | "payment">("rewards");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   const [tipToken, setTipToken] = useState<TokenSymbol>("USDC");
   const [tipPostUrl, setTipPostUrl] = useState("");
@@ -356,6 +357,10 @@ export default function Page() {
 
     void loadXSession();
   }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   useEffect(() => {
     setTipApproved(false);
@@ -537,7 +542,7 @@ export default function Page() {
       setVerifiedTipId(null);
       setClaimStatus("Claim completed.");
       if (celebrationUrl) {
-        window.open(celebrationUrl, "_blank", "noopener,noreferrer");
+        window.location.assign(celebrationUrl);
       }
     } catch (error) {
       setClaimStatus(error instanceof Error ? error.message : "Claim failed.");
@@ -640,6 +645,12 @@ export default function Page() {
             >
               Faucet
             </Link>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
           </div>
         </div>
       </section>
@@ -869,31 +880,47 @@ export default function Page() {
             </Panel>
 
             <Panel title="Quick Links">
-              <div className="grid gap-4 lg:grid-cols-[1fr_180px]">
-                <div className="grid gap-3">
-                  <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                    Arc Network
-                  </Link>
-                  <Link href="https://testnet.arcscan.app/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                    Arc Testnet Explorer
-                  </Link>
-                  <Link href="https://community.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                    Arc Community
-                  </Link>
-                  <Link href="https://docs.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
-                    Arc Docs
-                  </Link>
-                </div>
-                <div className="flex min-h-[220px] items-end justify-start rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-5 lg:justify-end">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.42em] text-slate-500">
-                      Powered by
-                    </p>
-                    <p className="mt-3 text-5xl font-medium tracking-[0.24em] text-white">
-                      ARC
-                    </p>
-                  </div>
-                </div>
+              <div className="grid gap-3">
+                <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Network
+                </Link>
+                <Link href="https://testnet.arcscan.app/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Testnet Explorer
+                </Link>
+                <Link href="https://community.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Community
+                </Link>
+                <Link href="https://docs.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Docs
+                </Link>
+              </div>
+            </Panel>
+
+            <Panel
+              title="Why Arc"
+              subtitle="Arc keeps social reward flows simple: low-fee stablecoins, fast settlement, and a clean path from identity to payout."
+            >
+              <div className="grid gap-3">
+                <Stat
+                  label="Stablecoins First"
+                  value="USDC and EURC transfers feel native, which makes creator rewards and direct payments practical."
+                />
+                <Stat
+                  label="Fast Finality"
+                  value="Arc is built for quick confirmations, so creators do not wait around to see funds arrive."
+                />
+                <Stat
+                  label="Composable Identity"
+                  value="ArcFlow ties social identity to onchain reward rails without cluttering the product with extra steps."
+                />
+              </div>
+              <div className="mt-5 rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-5">
+                <p className="text-[10px] uppercase tracking-[0.42em] text-slate-500">
+                  Powered by
+                </p>
+                <p className="mt-3 text-5xl font-medium tracking-[0.24em] text-white">
+                  ARC
+                </p>
               </div>
             </Panel>
           </div>

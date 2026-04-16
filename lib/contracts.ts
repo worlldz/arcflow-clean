@@ -137,8 +137,8 @@ export function makeProofTweetIntentUrl(proof: string) {
 export function makeClaimCelebrationTweetText(handle?: string) {
   const cleanHandle = handle?.replace(/^@/, "");
   return cleanHandle
-    ? `@arc Thanks for the reward ^^ Claimed on ArcFlow from @${cleanHandle}.`
-    : "@arc Thanks for the reward ^^ Claimed on ArcFlow.";
+    ? `@arc Thank you so much ^^ Claimed on ArcFlow from @${cleanHandle}. Build on Arc.`
+    : "@arc Thank you so much ^^ Claimed on ArcFlow. Build on Arc.";
 }
 
 export function makeClaimCelebrationIntentUrl(handle?: string) {
