@@ -41,6 +41,13 @@ export const erc20Abi = [
 export const arcFlowTipsAbi = [
   {
     type: "function",
+    name: "nextTipId",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "createTip",
     stateMutability: "nonpayable",
     inputs: [

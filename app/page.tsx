@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   Address,
-  decodeEventLog,
   formatUnits,
   isAddress,
   parseUnits,
@@ -429,6 +428,13 @@ export default function Page() {
       setTipStatus("Creating reward...");
       await ensureArc();
 
+      const expectedTipId = (await (publicClient?.readContract as any)?.({
+        address: tipsAddress,
+        abi: arcFlowTipsAbi,
+        functionName: "nextTipId",
+        args: [],
+      })) as bigint | undefined;
+
       const claimDeadline = BigInt(
         Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
       );
@@ -446,39 +452,8 @@ export default function Page() {
         ],
       });
 
-      const receipt = await publicClient?.waitForTransactionReceipt({ hash });
-      let createdTipId: bigint | null = null;
-
-      for (const log of receipt?.logs ?? []) {
-        try {
-          const decoded = decodeEventLog({
-            abi: [
-              {
-                type: "event",
-                name: "TipCreated",
-                inputs: [
-                  { indexed: true, name: "tipId", type: "uint256" },
-                  { indexed: true, name: "tipper", type: "address" },
-                  { indexed: true, name: "token", type: "address" },
-                  { indexed: false, name: "amount", type: "uint256" },
-                  { indexed: false, name: "postUrl", type: "string" },
-                  { indexed: false, name: "recipientHandle", type: "string" },
-                  { indexed: false, name: "claimDeadline", type: "uint64" },
-                ],
-              },
-            ],
-            data: log.data,
-            topics: log.topics,
-          });
-
-          if (decoded.eventName === "TipCreated") {
-            createdTipId = decoded.args.tipId;
-            break;
-          }
-        } catch {
-          // ignore unrelated logs
-        }
-      }
+      await publicClient?.waitForTransactionReceipt({ hash });
+      const createdTipId = expectedTipId ?? null;
 
       if (createdTipId !== null) {
         setCreatedTipId(createdTipId);
