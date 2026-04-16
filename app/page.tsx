@@ -927,7 +927,7 @@ export default function Page() {
                         <Link
                           href={announcementTweetIntentUrl}
                           target="_blank"
-                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/[0.08]"
+                          className="rounded-full border border-[#4cb7ff]/35 bg-[linear-gradient(135deg,#43b3ff_0%,#1d9bf0_60%,#1176d4_100%)] px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-white transition hover:scale-[1.02]"
                         >
                           Open X Compose
                         </Link>

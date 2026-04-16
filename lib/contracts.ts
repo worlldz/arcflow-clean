@@ -172,9 +172,9 @@ export function makeRewardAnnouncementText({
   const cleanMessage = message.trim() || "great content";
   const cleanPostUrl = postUrl?.trim();
   if (cleanPostUrl) {
-    return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" ARCFLOW ${cleanPostUrl}`;
+    return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" @arcflowc ${cleanPostUrl} #BuildOnArc`;
   }
-  return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" ARCFLOW-REWARD-${tipId.toString()}`;
+  return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" @arcflowc #BuildOnArc`;
 }
 
 export function makeRewardAnnouncementIntentUrl(input: {
