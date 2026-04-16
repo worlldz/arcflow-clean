@@ -11,6 +11,7 @@ import {
 } from "viem";
 import {
   useAccount,
+  useBalance,
   useChainId,
   useConnect,
   useDisconnect,
@@ -240,18 +241,41 @@ function Status({ text }: { text: string }) {
 
 function WalletButton() {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  const { data: nativeBalance } = useBalance({
+    address,
+    query: {
+      enabled: Boolean(address),
+    },
+  });
 
   const injectedConnector = connectors[0];
+  const wrongChain = isConnected && chainId !== arcTestnet.id;
 
   if (isConnected && address) {
     return (
       <button
         onClick={() => disconnect()}
-        className="w-full rounded-2xl bg-[linear-gradient(135deg,#b7fff1_0%,#84ffe2_40%,#3ae0b6_100%)] px-4 py-3 text-sm font-semibold text-[#04120e] shadow-[0_18px_40px_rgba(61,239,193,0.3)] transition hover:scale-[1.01]"
+        className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold transition hover:scale-[1.01] ${
+          wrongChain
+            ? "border border-red-400/30 bg-[linear-gradient(135deg,#471313_0%,#6e1818_45%,#b42323_100%)] text-white shadow-[0_18px_40px_rgba(180,35,35,0.28)]"
+            : "bg-[linear-gradient(135deg,#b7fff1_0%,#84ffe2_40%,#3ae0b6_100%)] text-[#04120e] shadow-[0_18px_40px_rgba(61,239,193,0.3)]"
+        }`}
       >
-        {`${address.slice(0, 6)}...${address.slice(-4)} / Disconnect`}
+        <div className="flex items-center justify-between gap-3">
+          <span>
+            {wrongChain
+              ? `${address.slice(0, 6)}...${address.slice(-4)} / Wrong Chain`
+              : `${address.slice(0, 6)}...${address.slice(-4)} / Disconnect`}
+          </span>
+          <span className={`text-xs ${wrongChain ? "text-red-100" : "text-[#083326]"}`}>
+            {nativeBalance
+              ? `${Number(nativeBalance.formatted).toFixed(2)} ${nativeBalance.symbol}`
+              : "--"}
+          </span>
+        </div>
       </button>
     );
   }
@@ -763,7 +787,10 @@ export default function Page() {
                   label="Network"
                   value={chainId === arcTestnet.id ? "Arc Testnet" : "Switch Required"}
                 />
-                <Stat label="Assets" value="USDC / EURC" />
+                <Stat
+                  label="Assets"
+                  value={chainId === arcTestnet.id ? "USDC / EURC / Balance live" : "Wrong chain"}
+                />
               </div>
             </div>
           </div>
