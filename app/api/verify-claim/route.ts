@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rawTip = await publicClient.readContract({
+    const rawTip = await (publicClient.readContract as any)({
       address: CONTRACTS.tips,
       abi: arcFlowTipsAbi,
       functionName: "getTip",
