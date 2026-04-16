@@ -10,23 +10,12 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { arcFlowTipsAbi, makeClaimProof } from "../../../lib/contracts";
 import { arcTestnet, CONTRACTS } from "../../../lib/wagmi";
-import {
-  X_ACCESS_TOKEN_COOKIE,
-  X_USERNAME_COOKIE,
-} from "../../../lib/x-auth";
+import { X_USERNAME_COOKIE } from "../../../lib/x-auth";
 
 const publicClient = createPublicClient({
   chain: arcTestnet,
   transport: http("https://rpc.testnet.arc.network"),
 });
-
-function extractTweetId(tweetUrl: string) {
-  const match = tweetUrl.match(/status\/(\d+)/i);
-  if (!match) {
-    throw new Error("Could not read the tweet ID from the URL.");
-  }
-  return match[1];
-}
 
 function parseTipReadResult(data: unknown) {
   if (!data) return null;
@@ -128,9 +117,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const tipId = BigInt(body.tipId);
     const recipient = body.recipient as `0x${string}`;
-    const tweetUrl = String(body.tweetUrl ?? "");
     const store = await cookies();
-    const xAccessToken = store.get(X_ACCESS_TOKEN_COOKIE)?.value;
     const connectedUsername = store.get(X_USERNAME_COOKIE)?.value;
 
     if (!isAddress(recipient)) {
@@ -140,7 +127,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!xAccessToken || !connectedUsername) {
+    if (!connectedUsername) {
       return NextResponse.json(
         { error: "Connect X before claiming a reward." },
         { status: 401 },
@@ -181,37 +168,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tweetId = extractTweetId(tweetUrl);
-    const lookupUrl =
-      `https://api.x.com/2/tweets/${tweetId}` +
-      "?expansions=author_id&tweet.fields=text&user.fields=username";
-
-    const tweetResponse = await fetch(lookupUrl, {
-      headers: {
-        Authorization: `Bearer ${xAccessToken}`,
-      },
-      cache: "no-store",
-    });
-
-    if (!tweetResponse.ok) {
-      const responseText = await tweetResponse.text();
-      return NextResponse.json(
-        {
-          error: "X API lookup failed. Check your X app permissions.",
-          detail: responseText,
-        },
-        { status: 502 },
-      );
-    }
-
-    const tweetJson = await tweetResponse.json();
-    const tweetText = String(tweetJson?.data?.text ?? "");
-    const authorUsername = String(
-      tweetJson?.includes?.users?.[0]?.username ?? "",
-    )
-      .replace(/^@/, "")
-      .toLowerCase();
-
     const expectedHandle = String(tip.recipientHandle)
       .replace(/^@/, "")
       .toLowerCase();
@@ -223,27 +179,6 @@ export async function POST(request: NextRequest) {
         {
           error:
             `Connected X account is @${connectedUsername}, but this reward is reserved for @${expectedHandle}.`,
-        },
-        { status: 400 },
-      );
-    }
-
-    if (authorUsername !== expectedHandle) {
-      return NextResponse.json(
-        {
-          error:
-            `This proof tweet was posted by @${authorUsername}, but the tip is reserved for @${expectedHandle}.`,
-        },
-        { status: 400 },
-      );
-    }
-
-    if (!tweetText.toLowerCase().includes(proof.toLowerCase())) {
-      return NextResponse.json(
-        {
-          error:
-            "The verification tweet does not contain the required proof string.",
-          expectedProof: proof,
         },
         { status: 400 },
       );
@@ -274,7 +209,7 @@ export async function POST(request: NextRequest) {
       sigDeadline: Number(sigDeadline),
       proof,
       expectedHandle,
-      authorUsername,
+      authorUsername: connectedUsername,
     });
   } catch (error) {
     const message =

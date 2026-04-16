@@ -134,6 +134,19 @@ export function makeProofTweetIntentUrl(proof: string) {
   return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }
 
+export function makeClaimCelebrationTweetText(handle?: string) {
+  const cleanHandle = handle?.replace(/^@/, "");
+  return cleanHandle
+    ? `@arc Thanks for the reward ^^ Claimed on ArcFlow from @${cleanHandle}.`
+    : "@arc Thanks for the reward ^^ Claimed on ArcFlow.";
+}
+
+export function makeClaimCelebrationIntentUrl(handle?: string) {
+  return `https://x.com/intent/post?text=${encodeURIComponent(
+    makeClaimCelebrationTweetText(handle),
+  )}`;
+}
+
 export function makeRewardAnnouncementText({
   recipientHandle,
   message,

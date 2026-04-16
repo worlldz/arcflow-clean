@@ -22,9 +22,8 @@ import {
 import {
   arcFlowTipsAbi,
   erc20Abi,
+  makeClaimCelebrationIntentUrl,
   makeClaimProof,
-  makeProofTweetIntentUrl,
-  makeProofTweetText,
   makeRewardAnnouncementIntentUrl,
   makeRewardAnnouncementText,
 } from "../lib/contracts";
@@ -262,7 +261,6 @@ export default function Page() {
   const [createdTipId, setCreatedTipId] = useState<bigint | null>(null);
 
   const [claimTipId, setClaimTipId] = useState("");
-  const [claimTweetUrl, setClaimTweetUrl] = useState("");
   const [claimStatus, setClaimStatus] = useState("");
   const [verifiedSignature, setVerifiedSignature] = useState<`0x${string}` | null>(null);
   const [verifiedSigDeadline, setVerifiedSigDeadline] = useState<bigint | null>(null);
@@ -313,14 +311,6 @@ export default function Page() {
           tipId: createdTipId,
         })
       : "#";
-
-  const claimProof =
-    numericClaimTipId > 0n
-      ? makeClaimProof(numericClaimTipId)
-      : "";
-
-  const claimTweetText = claimProof ? makeProofTweetText(claimProof) : "";
-  const claimTweetIntentUrl = claimProof ? makeProofTweetIntentUrl(claimProof) : "#";
 
   const { data: claimTipData, refetch: refetchClaimTipData } = useReadContract({
     address: tipsAddress,
@@ -375,7 +365,7 @@ export default function Page() {
     setVerifiedSignature(null);
     setVerifiedSigDeadline(null);
     setVerifiedTipId(null);
-  }, [claimTipId, claimTweetUrl, address, xUsername]);
+  }, [claimTipId, address, xUsername]);
 
   async function ensureArc() {
     if (chainId !== arcTestnet.id) {
@@ -481,9 +471,8 @@ export default function Page() {
         throw new Error("NEXT_PUBLIC_TIPS_CONTRACT is still empty in .env.local.");
       }
       if (!claimTipId) throw new Error("Enter a tip ID.");
-      if (!claimTweetUrl.trim()) throw new Error("Paste the proof tweet URL.");
 
-      setClaimStatus("Verifying proof tweet...");
+      setClaimStatus("Verifying connected X account...");
       await ensureArc();
 
       const verifyResponse = await fetch("/api/verify-claim", {
@@ -492,7 +481,6 @@ export default function Page() {
         body: JSON.stringify({
           tipId: claimTipId,
           recipient: address,
-          tweetUrl: claimTweetUrl.trim(),
         }),
       });
 
@@ -514,7 +502,7 @@ export default function Page() {
     }
   }
 
-  async function claimVerifiedTip() {
+  async function claimVerifiedTip(openTweetAfterClaim = false) {
     try {
       if (!address) throw new Error("Connect wallet first.");
       if (!verifiedSignature || !verifiedSigDeadline || verifiedTipId === null) {
@@ -541,10 +529,16 @@ export default function Page() {
 
       await publicClient?.waitForTransactionReceipt({ hash });
       await refetchClaimTipData();
+      const celebrationUrl = openTweetAfterClaim
+        ? makeClaimCelebrationIntentUrl(parsedClaimTipData?.recipientHandle)
+        : null;
       setVerifiedSignature(null);
       setVerifiedSigDeadline(null);
       setVerifiedTipId(null);
       setClaimStatus("Claim completed.");
+      if (celebrationUrl) {
+        window.open(celebrationUrl, "_blank", "noopener,noreferrer");
+      }
     } catch (error) {
       setClaimStatus(error instanceof Error ? error.message : "Claim failed.");
     }
@@ -760,7 +754,7 @@ export default function Page() {
 
             <Panel
               title="Claim Reward"
-              subtitle="Connect the correct X account, post the matching @arc proof tweet, then paste the tweet URL here for verification."
+              subtitle="Connect the correct X account. If the username matches the reserved handle, verification unlocks claim."
             >
               <div className="grid gap-4">
                 <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
@@ -801,35 +795,14 @@ export default function Page() {
                       onChange={(event) => setClaimTipId(event.target.value)}
                     />
                   </div>
-                  <div>
-                    <Label title="Proof Tweet URL" />
-                    <Input
-                      placeholder="https://x.com/you/status/123..."
-                      value={claimTweetUrl}
-                      onChange={(event) => setClaimTweetUrl(event.target.value)}
-                    />
+                  <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
+                    <Label title="Claim Identity" />
+                    <p className="font-mono text-xs leading-6 text-[#c8fff1]">
+                      {xUsername
+                        ? `@${xUsername} will be matched against the reserved handle on this reward.`
+                        : "Connect X to verify the reserved handle."}
+                    </p>
                   </div>
-                </div>
-
-                <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0c1119,#0a0f17)] p-4">
-                  <Label
-                    title="Recipient Proof Tweet"
-                    helper={
-                      claimProof ? (
-                        <Link
-                          href={claimTweetIntentUrl}
-                          target="_blank"
-                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/[0.08]"
-                        >
-                          Open X Compose
-                        </Link>
-                      ) : null
-                    }
-                  />
-                  <p className="font-mono text-xs leading-6 text-[#c8fff1]">
-                    {claimTweetText ||
-                      "Connect wallet and enter the tip ID to generate the recipient proof tweet."}
-                  </p>
                 </div>
 
                 {parsedClaimTipData ? (
@@ -866,12 +839,19 @@ export default function Page() {
                     Verify
                   </SecondaryButton>
                   <PrimaryButton
-                    onClick={claimVerifiedTip}
+                    onClick={() => void claimVerifiedTip(false)}
                     disabled={!isConnected || !xUsername || !verifiedSignature}
                   >
                     Claim
                   </PrimaryButton>
                 </div>
+
+                <SecondaryButton
+                  onClick={() => void claimVerifiedTip(true)}
+                  disabled={!isConnected || !xUsername || !verifiedSignature}
+                >
+                  Claim & Tweet
+                </SecondaryButton>
 
                 {claimStatus ? <Status text={claimStatus} /> : null}
               </div>
