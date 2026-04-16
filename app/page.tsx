@@ -57,6 +57,19 @@ function formatTimestamp(timestamp: bigint) {
   return new Date(Number(timestamp) * 1000).toLocaleString();
 }
 
+function getReadableError(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message : fallback;
+
+  if (
+    message.includes("rate limited") ||
+    message.includes("Request exceeds defined limit")
+  ) {
+    return "Network request is being rate limited right now. Wait 2-3 seconds and try again.";
+  }
+
+  return message;
+}
+
 function parseTipReadResult(data: unknown) {
   if (!data) return null;
 
@@ -335,6 +348,8 @@ export default function Page() {
   const [tipStatus, setTipStatus] = useState("");
   const [tipApproved, setTipApproved] = useState(false);
   const [createdTipId, setCreatedTipId] = useState<bigint | null>(null);
+  const [isApprovingTip, setIsApprovingTip] = useState(false);
+  const [isCreatingTip, setIsCreatingTip] = useState(false);
 
   const [claimStatus, setClaimStatus] = useState("");
   const [verifiedSignature, setVerifiedSignature] = useState<`0x${string}` | null>(null);
@@ -511,6 +526,7 @@ export default function Page() {
   }
 
   async function approveTipToken() {
+    setIsApprovingTip(true);
     try {
       if (!CONTRACTS.tips) {
         throw new Error("NEXT_PUBLIC_TIPS_CONTRACT is still empty in .env.local.");
@@ -531,11 +547,14 @@ export default function Page() {
       setTipApproved(true);
       setTipStatus(`${tipToken} approved.`);
     } catch (error) {
-      setTipStatus(error instanceof Error ? error.message : "Approval failed.");
+      setTipStatus(getReadableError(error, "Approval failed."));
+    } finally {
+      setIsApprovingTip(false);
     }
   }
 
   async function createTip() {
+    setIsCreatingTip(true);
     try {
       if (!CONTRACTS.tips) {
         throw new Error("NEXT_PUBLIC_TIPS_CONTRACT is still empty in .env.local.");
@@ -591,7 +610,9 @@ export default function Page() {
         setTipStatus("Reward created. Check ArcScan for the TipCreated event.");
       }
     } catch (error) {
-      setTipStatus(error instanceof Error ? error.message : "Reward failed.");
+      setTipStatus(getReadableError(error, "Reward failed."));
+    } finally {
+      setIsCreatingTip(false);
     }
   }
 
@@ -899,29 +920,31 @@ export default function Page() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     onClick={approveTipToken}
-                    disabled={!isConnected || tipApproved}
+                    disabled={!isConnected || tipApproved || isApprovingTip || isCreatingTip}
                     className={`h-12 rounded-2xl px-4 text-sm font-semibold transition ${
                       tipApproved
                         ? "border border-white/10 bg-white/[0.05] text-slate-500"
                         : "bg-[linear-gradient(135deg,#b7fff1_0%,#84ffe2_40%,#3ae0b6_100%)] text-[#04120e] shadow-[0_18px_40px_rgba(61,239,193,0.3)] hover:scale-[1.01]"
                     } disabled:cursor-not-allowed disabled:hover:scale-100`}
                   >
-                    Approve {tipToken}
+                    {isApprovingTip ? `Approving ${tipToken}...` : `Approve ${tipToken}`}
                   </button>
                   <button
                     onClick={createTip}
-                    disabled={!isConnected || !tipApproved}
+                    disabled={!isConnected || !tipApproved || isApprovingTip || isCreatingTip}
                     className={`h-12 rounded-2xl px-4 text-sm font-semibold transition ${
                       tipApproved
                         ? "bg-[linear-gradient(135deg,#b7fff1_0%,#84ffe2_40%,#3ae0b6_100%)] text-[#04120e] shadow-[0_18px_40px_rgba(61,239,193,0.3)] hover:scale-[1.01]"
                         : "border border-white/10 bg-white/[0.03] text-slate-500"
                     } disabled:cursor-not-allowed disabled:hover:scale-100`}
                   >
-                    Create Reward
+                    {isCreatingTip ? "Creating Reward..." : "Create Reward"}
                   </button>
                 </div>
 
-                {tipStatus ? <Status text={tipStatus} /> : null}
+                <div className="min-h-[52px]">
+                  {tipStatus ? <Status text={tipStatus} /> : null}
+                </div>
               </div>
             </Panel>
 
