@@ -399,7 +399,7 @@ export default function Page() {
       setTipStatus(`Approving ${tipToken}...`);
       await ensureArc();
 
-      const hash = await writeContractAsync({
+      const hash = await (writeContractAsync as any)({
         address: selectedTipToken.address,
         abi: erc20Abi,
         functionName: "approve",
@@ -433,7 +433,7 @@ export default function Page() {
         Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
       );
 
-      const hash = await writeContractAsync({
+      const hash = await (writeContractAsync as any)({
         address: tipsAddress,
         abi: arcFlowTipsAbi,
         functionName: "createTip",
@@ -548,7 +548,7 @@ export default function Page() {
       setClaimStatus("Claiming reward...");
       await ensureArc();
 
-      const hash = await writeContractAsync({
+      const hash = await (writeContractAsync as any)({
         address: tipsAddress,
         abi: arcFlowTipsAbi,
         functionName: "claimTip",
@@ -590,7 +590,7 @@ export default function Page() {
       setPaymentStatus(`Sending ${paymentToken}...`);
       await ensureArc();
 
-      const hash = await writeContractAsync({
+      const hash = await (writeContractAsync as any)({
         address: selectedPaymentToken.address,
         abi: erc20Abi,
         functionName: "transfer",
