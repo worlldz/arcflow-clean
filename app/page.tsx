@@ -806,7 +806,7 @@ export default function Page() {
                 />
                 <Stat
                   label="Network"
-                  value={chainId === arcTestnet.id ? "Arc Testnet" : "Switch Required"}
+                  value="Make sure Arc Testnet is selected in your wallet."
                 />
                 <Stat
                   label="Assets"
@@ -1097,7 +1097,9 @@ export default function Page() {
                   <p className="text-sm leading-8 text-slate-300">
                     ArcFlow turns social appreciation into a cleaner product flow: creators can be discovered on X, rewarded in stablecoins, verified through connected identity, and paid out on Arc without clunky off-chain coordination.
                   </p>
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.42em] text-[#98ffe5]">
+                </div>
+                <div className="rounded-[28px] border border-[#92ffe7]/18 bg-[#92ffe7]/7 px-5 py-6 text-center">
+                  <p className="text-lg font-semibold uppercase tracking-[0.52em] text-[#98ffe5] sm:text-xl">
                     Build On Arc
                   </p>
                 </div>
