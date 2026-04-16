@@ -641,7 +641,17 @@ export default function Page() {
 
       await publicClient?.waitForTransactionReceipt({ hash });
       const celebrationUrl = openTweetAfterClaim
-        ? makeClaimCelebrationIntentUrl(selectedClaimTip?.recipientHandle)
+        ? makeClaimCelebrationIntentUrl({
+            handle: selectedClaimTip?.recipientHandle,
+            amount: selectedClaimTip
+              ? formatUnits(selectedClaimTip.amount, 6)
+              : undefined,
+            tokenSymbol: selectedClaimTip
+              ? selectedClaimTip.token === TOKENS.USDC.address
+                ? "USDC"
+                : "EURC"
+              : undefined,
+          })
         : null;
       setVerifiedSignature(null);
       setVerifiedSigDeadline(null);
@@ -729,6 +739,11 @@ export default function Page() {
                   <WalletButton />
                 </div>
               </div>
+              {isConnected && chainId !== arcTestnet.id ? (
+                <div className="w-full rounded-2xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm text-amber-100">
+                  Arc Test ağında olduğunuzdan emin olun. Your wallet is connected on the wrong chain right now.
+                </div>
+              ) : null}
               <button
                 onClick={() => void switchChainAsync({ chainId: arcTestnet.id })}
                 className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-white transition hover:bg-white/[0.06]"
@@ -1032,6 +1047,9 @@ export default function Page() {
                   <p className="text-sm leading-8 text-slate-300">
                     ArcFlow turns social appreciation into a cleaner product flow: creators can be discovered on X, rewarded in stablecoins, verified through connected identity, and paid out on Arc without clunky off-chain coordination.
                   </p>
+                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.42em] text-[#98ffe5]">
+                    Build On Arc
+                  </p>
                 </div>
               </div>
             </Panel>
@@ -1054,13 +1072,13 @@ export default function Page() {
             </Panel>
             <section
               data-ui="panel"
-              className="mt-2 flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
+              className="mt-2 flex min-h-[188px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] px-6 py-5 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
             >
               <div className="w-full max-w-[420px]">
                 <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
                   Powered By
                 </p>
-                <p className="mt-8 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                <p className="mt-6 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
                   ARC
                 </p>
               </div>
@@ -1205,13 +1223,13 @@ export default function Page() {
 
             <section
               data-ui="panel"
-              className="flex min-h-[236px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
+              className="flex min-h-[188px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] px-6 py-5 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
             >
               <div className="w-full max-w-[420px]">
                 <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
                   Powered By
                 </p>
-                <p className="mt-8 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                <p className="mt-6 pl-4 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
                   ARC
                 </p>
               </div>

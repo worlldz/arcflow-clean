@@ -134,16 +134,29 @@ export function makeProofTweetIntentUrl(proof: string) {
   return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }
 
-export function makeClaimCelebrationTweetText(handle?: string) {
-  const cleanHandle = handle?.replace(/^@/, "");
+export function makeClaimCelebrationTweetText(input?: {
+  handle?: string;
+  amount?: string;
+  tokenSymbol?: string;
+}) {
+  const cleanHandle = input?.handle?.replace(/^@/, "");
+  const amountText =
+    input?.amount && input?.tokenSymbol
+      ? `${input.amount} ${input.tokenSymbol} claimed`
+      : "Reward claimed";
+
   return cleanHandle
-    ? `@arc Thank you so much ^^ Claimed on ArcFlow from @${cleanHandle}. Build on Arc.`
-    : "@arc Thank you so much ^^ Claimed on ArcFlow. Build on Arc.";
+    ? `@arc ${amountText} from @${cleanHandle}. Thank you so much ^^ Build on Arc.`
+    : `@arc ${amountText}. Thank you so much ^^ Build on Arc.`;
 }
 
-export function makeClaimCelebrationIntentUrl(handle?: string) {
+export function makeClaimCelebrationIntentUrl(input?: {
+  handle?: string;
+  amount?: string;
+  tokenSymbol?: string;
+}) {
   return `https://x.com/intent/post?text=${encodeURIComponent(
-    makeClaimCelebrationTweetText(handle),
+    makeClaimCelebrationTweetText(input),
   )}`;
 }
 
