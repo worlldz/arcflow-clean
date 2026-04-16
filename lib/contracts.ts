@@ -131,7 +131,7 @@ export function makeProofTweetText(proof: string) {
 
 export function makeProofTweetIntentUrl(proof: string) {
   const text = makeProofTweetText(proof);
-  return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }
 
 export function makeClaimCelebrationTweetText(input?: {
@@ -155,7 +155,7 @@ export function makeClaimCelebrationIntentUrl(input?: {
   amount?: string;
   tokenSymbol?: string;
 }) {
-  return `https://x.com/intent/tweet?text=${encodeURIComponent(
+  return `https://x.com/intent/post?text=${encodeURIComponent(
     makeClaimCelebrationTweetText(input),
   )}`;
 }
@@ -179,7 +179,7 @@ export function makeRewardAnnouncementIntentUrl(input: {
   message: string;
   tipId: bigint;
 }) {
-  return `https://x.com/intent/tweet?text=${encodeURIComponent(
+  return `https://x.com/intent/post?text=${encodeURIComponent(
     makeRewardAnnouncementText(input),
   )}`;
 }

@@ -695,9 +695,6 @@ export default function Page() {
 
       setClaimStatus("Claiming reward...");
       await ensureArc();
-      const tweetWindow = openTweetAfterClaim
-        ? window.open("about:blank", "_blank")
-        : null;
 
       const hash = await (writeContractAsync as any)({
         address: tipsAddress,
@@ -731,12 +728,7 @@ export default function Page() {
       await loadClaimableTips(xUsername);
       setClaimStatus("Claim completed.");
       if (celebrationUrl) {
-        if (tweetWindow) {
-          tweetWindow.location.replace(celebrationUrl);
-          tweetWindow.focus();
-        } else {
-          window.open(celebrationUrl, "_blank");
-        }
+        window.location.href = celebrationUrl;
       }
     } catch (error) {
       setClaimStatus(error instanceof Error ? error.message : "Claim failed.");
