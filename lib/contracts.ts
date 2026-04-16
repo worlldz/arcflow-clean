@@ -164,13 +164,19 @@ export function makeRewardAnnouncementText({
   recipientHandle,
   message,
   tipId,
+  postUrl,
 }: {
   recipientHandle: string;
   message: string;
   tipId: bigint;
+  postUrl?: string;
 }) {
   const cleanHandle = recipientHandle.replace(/^@/, "");
   const cleanMessage = message.trim() || "great content";
+  const cleanPostUrl = postUrl?.trim();
+  if (cleanPostUrl) {
+    return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" ARCFLOW ${cleanPostUrl}`;
+  }
   return `@arc I'm sending a reward to @${cleanHandle} because of "${cleanMessage}" ARCFLOW-REWARD-${tipId.toString()}`;
 }
 
@@ -178,6 +184,7 @@ export function makeRewardAnnouncementIntentUrl(input: {
   recipientHandle: string;
   message: string;
   tipId: bigint;
+  postUrl?: string;
 }) {
   return `https://x.com/intent/post?text=${encodeURIComponent(
     makeRewardAnnouncementText(input),

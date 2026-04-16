@@ -412,6 +412,7 @@ export default function Page() {
           recipientHandle: tipRecipientHandle,
           message: tipMessage,
           tipId: createdTipId,
+          postUrl: tipPostUrl,
         })
       : "";
 
@@ -421,6 +422,7 @@ export default function Page() {
           recipientHandle: tipRecipientHandle,
           message: tipMessage,
           tipId: createdTipId,
+          postUrl: tipPostUrl,
         })
       : "#";
 
@@ -631,6 +633,7 @@ export default function Page() {
           recipientHandle: handle,
           message: tipMessage,
           tipId: createdTipId,
+          postUrl: normalizedPostUrl,
         });
         window.open(tweetUrl, "_blank", "noopener,noreferrer");
       } else {
@@ -970,7 +973,7 @@ export default function Page() {
 
             <Panel
               title="Claim Reward"
-              subtitle="Connect the correct X account. If the username matches the reserved handle, verification unlocks claim."
+              subtitle="Connect your X account to claim your rewards."
             >
               <div className="grid gap-4">
                 <div data-ui="subpanel" className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,#0d131c,#091019)] p-4">
@@ -1109,7 +1112,7 @@ export default function Page() {
               <div className="mt-4 flex flex-1 flex-col gap-4">
                 <div className="grid gap-4">
                 <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
-                <Stat label="2. Lock the Reward" value="Securely escrow USDC or EURC to their social handle." />
+                <Stat label="2. Lock the Reward" value="Securely lock USDC or EURC to their social handle." />
                 <Stat label="3. Account Match" value="The recipient connects X, ArcFlow detects active rewards reserved for that handle, and verification becomes one click." />
                 <Stat label="4. Automated Payout" value="Once the connected X account matches, smart contracts release funds instantly on Arc with no manual admin step." />
                 </div>
