@@ -277,7 +277,7 @@ export default function Page() {
   const tipsAddress = (CONTRACTS.tips ?? zeroAddress) as Address;
   const hasTipsContract = Boolean(CONTRACTS.tips);
 
-  const [tab, setTab] = useState<"rewards" | "payment">("rewards");
+  const [tab, setTab] = useState<"rewards" | "payment" | "why-arc">("rewards");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   const [tipToken, setTipToken] = useState<TokenSymbol>("USDC");
@@ -677,6 +677,9 @@ export default function Page() {
             <NavButton active={tab === "payment"} onClick={() => setTab("payment")}>
               Send Payment
             </NavButton>
+            <NavButton active={tab === "why-arc"} onClick={() => setTab("why-arc")}>
+              Why Arc
+            </NavButton>
             <Link
               href="https://faucet.circle.com/"
               target="_blank"
@@ -934,61 +937,22 @@ export default function Page() {
                 </Link>
               </div>
             </Panel>
-
-            <Panel
-              title="Why Arc"
-              subtitle="Arc gives ArcFlow the right foundation: stablecoin-native UX, fast settlement, and a builder culture that makes shipping feel exciting instead of painful."
+            <section
+              data-ui="panel"
+              className="flex min-h-[280px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]"
             >
-              <div className="grid gap-3">
-                <Stat
-                  label="Stablecoins First"
-                  value="USDC and EURC transfers feel native, which makes creator rewards and direct payments practical."
-                />
-                <Stat
-                  label="Fast Finality"
-                  value="Arc is built for quick confirmations, so creators do not wait around to see funds arrive."
-                />
-                <Stat
-                  label="Developer Love"
-                  value="Arc treats builders seriously. The team cares about developers, the community is warm, and people building on Arc tend to actually enjoy shipping."
-                />
-                <Stat
-                  label="Why We Chose It"
-                  value="We wanted a chain where social identity, stablecoin movement, and low-friction UX can live in one product without compromise."
-                />
+              <div className="w-full max-w-[420px]">
+                <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
+                  Powered By
+                </p>
+                <p className="mt-8 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                  ARC
+                </p>
               </div>
-              <div className="mt-5 grid gap-4 rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Core Advantages</p>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">
-                      Arc gives us the pieces we actually care about: smooth stablecoin transfers, quick confirmations,
-                      and infrastructure that fits consumer-facing products instead of slowing them down.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">Builder Experience</p>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">
-                      We chose Arc because it feels builder-first. The team clearly values developers, the ecosystem is
-                      welcoming, and people shipping on Arc tend to stay energized instead of getting worn down.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-5 flex min-h-[260px] items-center justify-center rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-5 text-center">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.92em] text-slate-500">
-                    Powered By
-                  </p>
-                  <p className="mt-6 text-5xl font-medium tracking-[1.4em] text-white sm:text-6xl">
-                    ARC
-                  </p>
-                </div>
-              </div>
-            </Panel>
+            </section>
           </div>
         </section>
-      ) : (
+      ) : tab === "payment" ? (
         <section className="grid gap-8 xl:grid-cols-[1.02fr_0.98fr]">
           <Panel
             title="Send Payment"
@@ -1043,6 +1007,114 @@ export default function Page() {
               <Stat label="Reminder" value="A valid blockchain address can still be unused; chain cannot prove ownership in advance." />
             </div>
           </Panel>
+        </section>
+      ) : (
+        <section className="grid gap-10 xl:grid-cols-[1.02fr_0.98fr]">
+          <div className="space-y-8">
+            <Panel
+              title="Why Arc"
+              subtitle="Arc gives ArcFlow the kind of base layer this product needs: stablecoin-native flows, fast confirmations, and an ecosystem that feels like it wants builders to win."
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <Stat
+                  label="Stablecoin Native"
+                  value="Arc feels aligned with products built around USDC and EURC, which is exactly what ArcFlow needs for rewards and direct payments."
+                />
+                <Stat
+                  label="Fast Confirmation"
+                  value="When a social reward turns into an onchain action, speed matters. Arc keeps that loop feeling immediate instead of stale."
+                />
+                <Stat
+                  label="Consumer Product Fit"
+                  value="Arc works especially well for apps that sit between identity, payments, creators, and community instead of purely trader-first experiences."
+                />
+                <Stat
+                  label="Builder Energy"
+                  value="A strong product lives or dies by iteration speed. Arc gives us a place where shipping faster actually feels possible."
+                />
+              </div>
+            </Panel>
+
+            <Panel title="What Arc Gives Us">
+              <div className="grid gap-4">
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">
+                    Build, Learn, Ecosystem
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    Arc presents the network as more than raw infrastructure. The website, docs, and community all push
+                    the same idea: builders should have clear paths to learn, integrate, and grow inside the ecosystem.
+                  </p>
+                </div>
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">
+                    Docs + Explorer Practicality
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    Good docs matter because they lower the friction between an idea and a working product. Arc also has
+                    the testnet explorer and ecosystem surfaces that make verifying contracts, tracking activity, and
+                    shipping iterations easier.
+                  </p>
+                </div>
+              </div>
+            </Panel>
+          </div>
+
+          <div className="space-y-8">
+            <Panel title="Why We Picked Arc For ArcFlow">
+              <div className="grid gap-4">
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">For This Product</p>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    ArcFlow is about rewarding people on the internet with stablecoins in a way that still feels clean,
+                    modern, and social. Arc fits that story better than a chain that only feels optimized for trading.
+                  </p>
+                </div>
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">For Developers</p>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    One of the biggest reasons we like Arc is the builder atmosphere around it. The team values
+                    developers, the community highlights contributions, and people building on Arc tend to actually sound
+                    happy to keep building.
+                  </p>
+                </div>
+                <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-slate-500">For Growth</p>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    Community events, content, contributions, and visible ecosystem pathways make Arc feel like a place
+                    where projects can compound attention over time instead of launching once and disappearing.
+                  </p>
+                </div>
+              </div>
+            </Panel>
+
+            <Panel title="Explore Arc">
+              <div className="grid gap-3">
+                <Link href="https://www.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Network | Build, Learn, Ecosystem, Start Building
+                </Link>
+                <Link href="https://testnet.arcscan.app/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Testnet Explorer | Blockchain, Contracts, Charts, API
+                </Link>
+                <Link href="https://community.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Community | Events, Contents, Contributions, Badges
+                </Link>
+                <Link href="https://docs.arc.network/" target="_blank" className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-white transition hover:bg-white/[0.06]">
+                  Arc Docs | Documentation, Integrate, Everything you need
+                </Link>
+              </div>
+              <div className="mt-5 flex min-h-[280px] items-center justify-center rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.09),transparent_34%),linear-gradient(180deg,rgba(17,24,37,0.97),rgba(7,10,17,0.99))] p-6 text-center shadow-[0_36px_100px_rgba(0,0,0,0.48)]">
+                <div className="w-full max-w-[420px]">
+                  <p className="text-base font-medium uppercase tracking-[0.72em] text-slate-400">
+                    Powered By
+                  </p>
+                  <p className="mt-8 text-center text-5xl font-medium tracking-[1.12em] text-white sm:text-6xl">
+                    ARC
+                  </p>
+                </div>
+              </div>
+            </Panel>
+          </div>
         </section>
       )}
     </main>
