@@ -119,15 +119,13 @@ html[data-theme="light"] button {
   border-color: rgba(148, 163, 184, 0.24) !important;
 }
 
-html[data-theme="light"] [data-ui="primary-button"],
-html[data-theme="light"] button[class*=\"bg-[linear-gradient\"] {
+html[data-theme="light"] [data-ui="primary-button"] {
   background: linear-gradient(135deg, #0da87e 0%, #27c595 40%, #69dcb8 100%) !important;
   color: white !important;
 }
 
 html[data-theme="light"] [data-ui="secondary-button"],
-html[data-theme="light"] a[class*=\"bg-white\"],
-html[data-theme="light"] button[class*=\"bg-white\"] {
+html[data-theme="light"] [data-ui="theme-toggle"] {
   background: rgba(255, 255, 255, 0.88) !important;
 }
 
