@@ -929,7 +929,7 @@ export default function Page() {
                           target="_blank"
                           className="rounded-full border border-[#4cb7ff]/35 bg-[linear-gradient(135deg,#43b3ff_0%,#1d9bf0_60%,#1176d4_100%)] px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-white transition hover:scale-[1.02]"
                         >
-                          Open X Compose
+                          Share on X
                         </Link>
                       ) : null
                     }
