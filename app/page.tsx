@@ -866,7 +866,7 @@ export default function Page() {
             <Panel
               title="Create Reward"
               subtitle="Lock USDC or EURC to an X handle. Add your own message and let ArcFlow handle the proof flow."
-              className="flex flex-col h-full xl:min-h-[780px]"
+              className="flex flex-col h-full xl:h-[760px]"
             >
               <div className="grid gap-4">
                 <div>
@@ -1108,25 +1108,23 @@ export default function Page() {
           </div>
 
           <div className="space-y-8">
-            <Panel title="The ArcFlow Protocol" className="flex flex-col h-full xl:min-h-[780px]">
-              <div className="mt-4 flex flex-1 flex-col">
+            <Panel title="The ArcFlow Protocol" className="flex flex-col h-full xl:h-[760px]">
+              <div className="mt-4 flex flex-1 flex-col gap-4">
                 <div className="grid gap-4">
-                  <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
-                  <Stat label="2. Lock the Reward" value="Securely lock USDC or EURC to their social handle." />
-                  <Stat label="3. Account Match" value="The recipient connects X, ArcFlow detects active rewards reserved for that handle, and verification becomes one click." />
-                  <Stat label="4. Automated Payout" value="Once the connected X account matches, smart contracts release funds instantly on Arc with no manual admin step." />
+                <Stat label="1. Spot a Creator" value="Find a tweet or profile that deserves a reward." />
+                <Stat label="2. Lock the Reward" value="Securely lock USDC or EURC to their social handle." />
+                <Stat label="3. Account Match" value="The recipient connects X, ArcFlow detects active rewards reserved for that handle, and verification becomes one click." />
+                <Stat label="4. Automated Payout" value="Once the connected X account matches, smart contracts release funds instantly on Arc with no manual admin step." />
                 </div>
-                <div className="mt-auto grid gap-4 pt-6">
-                  <div className="rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
-                    <p className="text-sm leading-8 text-slate-300">
-                      ArcFlow turns social appreciation into a cleaner product flow: creators can be discovered on X, rewarded in stablecoins, verified through connected identity, and paid out on Arc without clunky off-chain coordination.
-                    </p>
-                  </div>
-                  <div className="rounded-[28px] border border-[#92ffe7]/18 bg-[#92ffe7]/7 px-5 py-6 text-center">
-                    <p className="text-lg font-semibold uppercase tracking-[0.52em] text-[#98ffe5] sm:text-xl">
-                      Build On Arc
-                    </p>
-                  </div>
+                <div className="mt-auto rounded-[28px] border border-white/8 bg-white/[0.025] p-5">
+                  <p className="text-sm leading-8 text-slate-300">
+                    ArcFlow turns social appreciation into a cleaner product flow: creators can be discovered on X, rewarded in stablecoins, verified through connected identity, and paid out on Arc without clunky off-chain coordination.
+                  </p>
+                </div>
+                <div className="rounded-[28px] border border-[#92ffe7]/18 bg-[#92ffe7]/7 px-5 py-6 text-center">
+                  <p className="text-lg font-semibold uppercase tracking-[0.52em] text-[#98ffe5] sm:text-xl">
+                    Build On Arc
+                  </p>
                 </div>
               </div>
             </Panel>
