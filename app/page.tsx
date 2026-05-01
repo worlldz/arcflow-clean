@@ -839,6 +839,24 @@ export default function Page() {
               >
                 Add Arc Testnet Network
               </button>
+              <div className="grid w-full gap-2">
+                <Stat
+                  label="Wallet"
+                  value={
+                    address
+                      ? `${address.slice(0, 6)}...${address.slice(-4)}`
+                      : "Not connected"
+                  }
+                />
+                <Stat
+                  label="Network"
+                  value="Make sure Arc Testnet is selected in your wallet."
+                />
+                <Stat
+                  label="Assets"
+                  value={chainId === arcTestnet.id ? "USDC / EURC / Balance live" : "Wrong chain"}
+                />
+              </div>
               <div className="flex w-full items-center justify-end gap-2">
                 <SocialIconLink href="https://x.com/arcflowc" label="ArcFlow on X">
                   <svg
@@ -858,24 +876,6 @@ export default function Page() {
                     <path d="M20.317 4.369A19.791 19.791 0 0 0 15.885 3c-.191.328-.403.771-.554 1.116a18.27 18.27 0 0 0-5.33 0A12.64 12.64 0 0 0 9.447 3a19.736 19.736 0 0 0-4.434 1.37C2.21 8.585 1.45 12.695 1.83 16.748a19.9 19.9 0 0 0 5.431 2.728c.44-.6.832-1.235 1.169-1.904-.644-.244-1.259-.545-1.845-.901.154-.113.305-.23.45-.35 3.56 1.674 7.425 1.674 10.943 0 .147.12.297.237.45.35-.587.357-1.204.659-1.85.903.338.668.73 1.302 1.17 1.903a19.867 19.867 0 0 0 5.432-2.728c.456-4.699-.778-8.772-3.863-12.379ZM8.02 14.278c-1.066 0-1.94-.98-1.94-2.183 0-1.204.857-2.183 1.94-2.183 1.09 0 1.955.988 1.94 2.183 0 1.203-.857 2.183-1.94 2.183Zm7.96 0c-1.066 0-1.94-.98-1.94-2.183 0-1.204.856-2.183 1.94-2.183 1.09 0 1.955.988 1.94 2.183 0 1.203-.857 2.183-1.94 2.183Z" />
                   </svg>
                 </SocialIconLink>
-              </div>
-              <div className="grid w-full gap-2">
-                <Stat
-                  label="Wallet"
-                  value={
-                    address
-                      ? `${address.slice(0, 6)}...${address.slice(-4)}`
-                      : "Not connected"
-                  }
-                />
-                <Stat
-                  label="Network"
-                  value="Make sure Arc Testnet is selected in your wallet."
-                />
-                <Stat
-                  label="Assets"
-                  value={chainId === arcTestnet.id ? "USDC / EURC / Balance live" : "Wrong chain"}
-                />
               </div>
             </div>
           </div>
