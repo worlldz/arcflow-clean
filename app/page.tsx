@@ -1301,7 +1301,7 @@ export default function Page() {
                   </p>
                   <p className="mt-3 text-sm leading-7 text-slate-300">
                     Good docs matter because they lower the friction between an idea and a working product. Arc also has
-                    the testnet explorer and ecosystem surfaces that make verifying contracts, tracking activity, and
+                    the testnet explorer and ecosystem tools that make verifying contracts, tracking activity, and
                     shipping iterations easier.
                   </p>
                 </div>
