@@ -858,6 +858,13 @@ export default function Page() {
                 />
               </div>
               <div className="flex w-full items-center justify-end gap-2">
+                <SocialIconLink href="https://www.arc.io/" label="Arc website">
+                  <img
+                    src="/arc-logo.jpg"
+                    alt="Arc"
+                    className="h-5 w-5 rounded-sm object-cover"
+                  />
+                </SocialIconLink>
                 <SocialIconLink href="https://x.com/arcflowc" label="ArcFlow on X">
                   <svg
                     aria-hidden="true"
